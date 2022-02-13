@@ -1,0 +1,33 @@
+name: Run lint checks, tests and build
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clone the repository
+        uses: "actions/checkout@v2"
+      - name: Setup JDK 8
+        uses: actions/setup-java@2
+        with:
+          java-version: '8'
+          distribution: 'adopt-openj9'
+      - name: Run tests and lints
+        run: mvn clean verify
+      - name: Run build
+        uses: mvn clean package
+      - name: Generate a container image
+        run: |
+          version=$(mvn -q \
+              -Dexec.executable=echo \
+              -Dexec.args='${project.version}' \
+              --non-recursive \
+              exec:exec)
+          docker build . ghcr.io/${{ GITHUB_REPOSITORY_OWNER }}/hlf-connector:${version}
+          docker push ghcr.io/${{ GITHUB_REPOSITORY_OWNER }}/hlf-connector:${version}
+        shell: bash
+        env:
+          GITHUB_TOKEN: "${{ secrets.PAT }}"
