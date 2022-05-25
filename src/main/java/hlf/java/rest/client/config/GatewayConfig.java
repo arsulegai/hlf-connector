@@ -15,6 +15,7 @@ import org.hyperledger.fabric.sdk.exception.CryptoException;
 import org.hyperledger.fabric.sdk.exception.InvalidArgumentException;
 import org.hyperledger.fabric.sdk.security.CryptoSuite;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -31,6 +32,7 @@ public class GatewayConfig {
    * @return gateway Gateway object to connect to Fabric network
    * @throws IOException
    */
+  @RefreshScope
   @Bean
   public Gateway gateway(Wallet wallet) throws IOException {
     // Load the Network Connection Configuration path
@@ -54,6 +56,7 @@ public class GatewayConfig {
    * @return wallet Wallet pull credentials from wallet
    * @throws IOException
    */
+  @RefreshScope
   @Bean
   public Wallet wallet() throws IOException {
     log.info("Obtain the Wallet containing Admin and Client user information");
