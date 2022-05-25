@@ -6,6 +6,7 @@ import hlf.java.rest.client.service.ControllerService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.context.scope.refresh.RefreshScope;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 

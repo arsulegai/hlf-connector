@@ -4,19 +4,20 @@ import hlf.java.rest.client.config.FabricProperties;
 import hlf.java.rest.client.config.KafkaProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
-import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.event.annotation.AfterTestClass;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.File;
@@ -30,6 +31,11 @@ public class ConfigurationControllerIT {
   private int randomServerPort;
   @Autowired private FabricProperties fabricProperties;
   @Autowired private KafkaProperties kafkaProperties;
+
+  @BeforeAll
+  static void setup() throws IOException {
+    FileUtils.copyFile(new File("src/test/resources/application.yml"), new File("src/test/resources/integration/application.yml"));
+  }
 
   @Test
   void uploadConfigFile() throws Exception {
@@ -54,15 +60,13 @@ public class ConfigurationControllerIT {
     final String baseUrl = "http://localhost:" + this.randomServerPort + "/actuator/refresh";
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_JSON);
-//    headers.set("api-key", "ePVYHwAaQ0V1XOTX6U");
     HttpEntity<String> entity = new HttpEntity<>(null, headers);
     ResponseEntity<String> response = restTemplate.postForEntity(baseUrl, entity, String.class);
     log.info("response {}", response.getBody());
   }
 
-  @AfterEach
-  public void cleanUp() throws IOException {
-    FileUtils.delete(new File("src/test/resources/emptydir/sample-application.yml"));
-    FileUtils.copyFile(new File("src/test/resources/integration/application.yml"), new File("src/test/resources/application.yml"));
+  @AfterAll
+  static void cleanUp() throws IOException {
+    FileUtils.moveFile(new File("src/test/resources/integration/application.yml"), new File("src/test/resources/application.yml"));
   }
 }
