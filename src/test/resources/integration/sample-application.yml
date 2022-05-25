@@ -33,7 +33,7 @@ fabric:
     filename: connection.yml
   client:
     rest:
-      apikey: ePVYHwAaQ0V1XOTX6U
+      apikey: expected-key
 kafka:
   integration-points:
     -
@@ -47,6 +47,8 @@ kafka:
   event-listener:
     brokerHost: localhost:9093
     topic: hlf-offchain-topic
+
+
 ---
 spring:
   profiles: intg

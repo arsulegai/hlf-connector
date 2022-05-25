@@ -2,19 +2,22 @@ package hlf.java.rest.client.listener;
 
 import hlf.java.rest.client.config.KafkaConsumerConfig;
 import hlf.java.rest.client.config.KafkaProperties;
+
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
+import org.springframework.kafka.listener.AbstractMessageListenerContainer;
 import org.springframework.kafka.listener.AcknowledgingMessageListener;
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
 import org.springframework.kafka.listener.ContainerProperties;
-import org.springframework.kafka.support.Acknowledgment;
 
 /*
  * This class is the configuration class for dynamically creating consumers to receiving the blockchain
@@ -31,30 +34,37 @@ public class DynamicKafkaListener {
 
   @Autowired TransactionConsumer transactionConsumer;
 
+  private Set<ConcurrentMessageListenerContainer<String, String>> listeners;
+
   @EventListener
   public void handleEvent(ContextRefreshedEvent event) {
+    // close or kill all existing listeners
+    cleanListeners();
     List<KafkaProperties.Consumer> consumerList = consumerProperties.getIntegrationPoints();
-    consumerList.forEach(consumer -> generateAndStartConsumerGroup(consumer));
+    consumerList.forEach(this::generateAndStartConsumerGroup);
   }
 
-  public void generateAndStartConsumerGroup(KafkaProperties.Consumer consumer) {
+  private void generateAndStartConsumerGroup(KafkaProperties.Consumer consumer) {
     DefaultKafkaConsumerFactory<String, String> factory =
         kafkaConsumerConfig.consumerFactory(consumer);
     ContainerProperties containerProperties = new ContainerProperties(consumer.getTopic());
     containerProperties.setAckMode(ContainerProperties.AckMode.MANUAL_IMMEDIATE);
     containerProperties.setMessageListener(
-        new AcknowledgingMessageListener<String, String>() {
-          @Override
-          public void onMessage(
-              ConsumerRecord<String, String> message, Acknowledgment acknowledgment) {
-            transactionConsumer.listen(message, acknowledgment);
-          }
-        });
-    ConcurrentMessageListenerContainer container =
+            (AcknowledgingMessageListener<String, String>) (message, acknowledgment) -> transactionConsumer.listen(message, acknowledgment));
+    ConcurrentMessageListenerContainer<String, String> container =
         new ConcurrentMessageListenerContainer<>(factory, containerProperties);
+    listeners.add(container);
     container.start();
     log.debug(
         "Created kafka message listener container"
             + container.metrics().keySet().iterator().next());
+  }
+
+  private void cleanListeners() {
+    if (listeners == null) {
+      listeners = new HashSet<>();
+    }
+    listeners.forEach(AbstractMessageListenerContainer::stop);
+    listeners.clear();
   }
 }

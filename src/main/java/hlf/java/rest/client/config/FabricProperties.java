@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 
 /**
  * FabricProperties reads and binds with the application.yml and provide all the configuration as a
@@ -14,7 +15,11 @@ import org.springframework.context.annotation.Configuration;
  */
 @Data
 @Configuration
+@PropertySource(
+        value = {"file:${server.config.location}"},
+        ignoreResourceNotFound = true)
 @ConfigurationProperties(prefix = "fabric")
+@RefreshScope
 public class FabricProperties {
 
   private static final String SYSTEM_PROP_FABRIC_SERVICE_DISCOVERY_LOCALHOST =

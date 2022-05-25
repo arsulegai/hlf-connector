@@ -6,6 +6,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 
 /**
  * The type Kafka properties is added for fetching Kafka properties as configuration and can be used
@@ -14,6 +15,10 @@ import org.springframework.context.annotation.Configuration;
 @Data
 @Configuration
 @ConfigurationProperties(prefix = "kafka")
+@PropertySource(
+        value = {"file:${server.config.location}"},
+        ignoreResourceNotFound = true)
+@RefreshScope
 public class KafkaProperties {
 
   private ConsumerProperties integration;
