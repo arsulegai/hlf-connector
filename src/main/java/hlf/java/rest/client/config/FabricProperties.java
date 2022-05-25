@@ -15,9 +15,6 @@ import org.springframework.context.annotation.PropertySource;
  */
 @Data
 @Configuration
-@PropertySource(
-        value = {"file:${server.config.location}"},
-        ignoreResourceNotFound = true)
 @ConfigurationProperties(prefix = "fabric")
 @RefreshScope
 public class FabricProperties {

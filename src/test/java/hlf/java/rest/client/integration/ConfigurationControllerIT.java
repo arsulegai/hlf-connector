@@ -45,7 +45,6 @@ public class ConfigurationControllerIT {
     log.info("Response Code {}", response.getStatusCode());
     log.info("Response Body {}", response.getBody());
     triggerActuatorRefresh();
-    Thread.sleep(3000);
     // Now is the time to verify beans! It will prove what refresh is capable of
     Assertions.assertEquals("expected-key", fabricProperties.getClient().getRest().getApikey());
   }
@@ -53,10 +52,9 @@ public class ConfigurationControllerIT {
   void triggerActuatorRefresh(){
     RestTemplate restTemplate = new RestTemplate();
     final String baseUrl = "http://localhost:" + this.randomServerPort + "/actuator/refresh";
-
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_JSON);
-    headers.set("api-key", "ePVYHwAaQ0V1XOTX6U");
+//    headers.set("api-key", "ePVYHwAaQ0V1XOTX6U");
     HttpEntity<String> entity = new HttpEntity<>(null, headers);
     ResponseEntity<String> response = restTemplate.postForEntity(baseUrl, entity, String.class);
     log.info("response {}", response.getBody());
@@ -65,5 +63,6 @@ public class ConfigurationControllerIT {
   @AfterEach
   public void cleanUp() throws IOException {
     FileUtils.delete(new File("src/test/resources/emptydir/sample-application.yml"));
+    FileUtils.copyFile(new File("src/test/resources/integration/application.yml"), new File("src/test/resources/application.yml"));
   }
 }

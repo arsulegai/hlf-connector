@@ -15,9 +15,6 @@ import org.springframework.context.annotation.PropertySource;
 @Data
 @Configuration
 @ConfigurationProperties(prefix = "kafka")
-@PropertySource(
-        value = {"file:${server.config.location}"},
-        ignoreResourceNotFound = true)
 @RefreshScope
 public class KafkaProperties {
 

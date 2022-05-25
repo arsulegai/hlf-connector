@@ -13,9 +13,6 @@ import java.util.List;
 
 @Data
 @Configuration
-@PropertySource(
-        value = {"${server.config.location}"},
-        ignoreResourceNotFound = true)
 @RefreshScope
 public class ServerProperties {
 
