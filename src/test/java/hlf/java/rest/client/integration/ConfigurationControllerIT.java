@@ -17,6 +17,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.event.annotation.AfterTestClass;
 import org.springframework.web.client.RestTemplate;
 
@@ -34,6 +35,7 @@ public class ConfigurationControllerIT {
 
   @BeforeAll
   static void setup() throws IOException {
+    System.setProperty("spring.config.location", "src/test/resources/application.yml");
     FileUtils.copyFile(new File("src/test/resources/application.yml"), new File("src/test/resources/integration/application.yml"));
   }
 
@@ -67,6 +69,7 @@ public class ConfigurationControllerIT {
 
   @AfterAll
   static void cleanUp() throws IOException {
+    FileUtils.delete(new File("src/test/resources/application.yml"));
     FileUtils.moveFile(new File("src/test/resources/integration/application.yml"), new File("src/test/resources/application.yml"));
   }
 }
