@@ -1,7 +1,9 @@
 package hlf.java.rest.client.service.impl;
 
 import com.google.protobuf.ByteString;
+import com.google.protobuf.MessageOrBuilder;
 import com.google.protobuf.Timestamp;
+import com.google.protobuf.util.JsonFormat;
 import hlf.java.rest.client.exception.ChannelOperationException;
 import hlf.java.rest.client.exception.ErrorCode;
 import hlf.java.rest.client.exception.ServiceException;
@@ -95,6 +97,10 @@ public class ChannelServiceImpl implements ChannelService {
 
       // generate new channel config
       ChannelConfiguration channelConfiguration = newChannelConfig(channelOperationRequest);
+      Configtx.Config channelConfig = Configtx.Config.parseFrom(channelConfiguration.getChannelConfigurationAsBytes());
+      MessageOrBuilder message = channelConfig;
+      String channelConfigString = JsonFormat.printer().print(message);
+      log.info(channelConfigString);
       byte[] orgSignature =
           hfClientWrapper
               .getHfClient()
